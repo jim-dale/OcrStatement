@@ -19,6 +19,13 @@ namespace OcrStatement
     {
         static void Main(string[] args)
         {
+            // -s [path]    Source
+            // -t [path]    Target csv file to write transactions to
+            // -i [path]    Intermediate folder for storing scanned text and processed images
+            // -p [search pattern]  File search patterns
+            // -c [characters]      Set of characters allowed in OCR engine
+            // -d                   Force image processing
+            // -o                   Force OCR even if the OCR'rd text is cached
             var cfg = new AppConfig()
             {
                 Source = Environment.ExpandEnvironmentVariables(@"%SCANDOCS%\Finance\John Lewis\Statements\2016"),
