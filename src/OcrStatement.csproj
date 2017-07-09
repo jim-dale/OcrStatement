@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppContext.cs" />
+    <Compile Include="ArgsProcessor.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Helpers\CsvHelper.cs" />
     <Compile Include="Helpers\ImageMask.cs" />

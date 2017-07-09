@@ -7,46 +7,28 @@ using Autofac;
 
 namespace OcrStatement
 {
-    //IDictionary<string, string> bla = new Dictionary<string, string>();
-
-    //Configuration config = new Configuration();
-
-    //config["DeskewPercentage"] = "40";
-
-    //float dp = config["DeskewPercentage"].As<float>(50);
-    //var statementDate = config["StatementDate"].As<DateTime>();
     class Program
     {
         static void Main(string[] args)
         {
-            // -s [path]    Source
-            // -t [path]    Target csv file to write transactions to
-            // -i [path]    Intermediate folder for storing scanned text and processed images
-            // -p [search pattern]  File search patterns
-            // -c [characters]      Set of characters allowed in OCR engine
-            // -d                   Force image processing
-            // -o                   Force OCR even if the OCR'rd text is cached
-            var cfg = new AppConfig()
+            var cfg = ArgsProcessor.Parse(args);
+            if (cfg.ShowHelp)
             {
-                Source = Environment.ExpandEnvironmentVariables(@"%SCANDOCS%\Finance\John Lewis\Statements\2016"),
-                TargetFileName = Environment.ExpandEnvironmentVariables(@"%SCANDOCS%\Finance\John Lewis\Statements\2016 John Lewis Partnership.csv"),
-                IntermediateFolder = Environment.ExpandEnvironmentVariables(@"%SCANDOCS%\Finance\John Lewis\Statements\TEMP"),
-                SearchPatterns = new string[] { "*.png", "*.jpg" },
-                AllowedCharacters = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&./()[]'-,*@",
-                ForceOcr = false,
-                ForceDeskew = false,
-            };
+                ArgsProcessor.ShowHelp();
+            }
+            else
+            {
+                IContainer container = BuildContainer(cfg);
 
-            IContainer container = BuildContainer(cfg);
+                var ctx = container.Resolve<AppContext>();
+                ctx.Container = container;
+                ctx.ImagePreprocessor = ctx.Container.Resolve<IImagePreprocessor>();
+                ctx.OcrEngine = ctx.Container.Resolve<Lazy<ISimpleOcrEngine>>();
 
-            var ctx = container.Resolve<AppContext>();
-            ctx.Container = container;
-            ctx.ImagePreprocessor = ctx.Container.Resolve<IImagePreprocessor>();
-            ctx.OcrEngine = ctx.Container.Resolve<Lazy<ISimpleOcrEngine>>();
+                OcrSource(ctx);
 
-            OcrSource(ctx);
-
-            CsvHelper.Save(ctx.Statements, ctx.Config.TargetFileName);
+                CsvHelper.Save(ctx.Statements, ctx.Config.TargetFileName);
+            }
         }
 
         private static void OcrSource(AppContext ctx)
@@ -140,7 +122,7 @@ namespace OcrStatement
 
             string imageFileName = ctx.ImagePreprocessor.GetIntermediateFileName(file);
 
-            if (File.Exists(imageFileName) == false || ctx.Config.ForceDeskew)
+            if (File.Exists(imageFileName) == false || ctx.Config.ForceImageProcessing)
             {
                 ctx.ImagePreprocessor.CreateNewImageFrom(file, imageFileName);
             }
