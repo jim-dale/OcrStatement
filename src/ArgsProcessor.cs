@@ -4,6 +4,7 @@ namespace OcrStatement
     using System;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
 
     public class ArgsProcessor
     {
@@ -39,6 +40,7 @@ namespace OcrStatement
             Console.WriteLine($"Source=\"{cfg.Source}\"");
             Console.WriteLine($"TargetFileName=\"{cfg.TargetFileName}\"");
             Console.WriteLine($"IntermediateFolder=\"{cfg.IntermediateFolder}\"");
+            Console.WriteLine($"TessdataPath=\"{cfg.TessdataPath}\"");
             Console.WriteLine($"Patterns={patterns}");
             Console.WriteLine($"Characters=\"{cfg.AllowedCharacters}\"");
             Console.WriteLine($"Force image processing={cfg.ForceImageProcessing}");
@@ -93,6 +95,7 @@ namespace OcrStatement
                 Source = currentDirectory,
                 TargetFileName = Path.Combine(currentDirectory, "statements.csv"),
                 IntermediateFolder = Path.Combine(currentDirectory, "TEMP"),
+                TessdataPath = GetTessdataPath(),
                 SearchPatterns = new string[] { "*.png", "*.jpg" },
                 AllowedCharacters = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&./()[]'-,*@",
             };
@@ -134,6 +137,20 @@ namespace OcrStatement
                     default:
                         break;
                 }
+            }
+            return result;
+        }
+
+        private static string GetTessdataPath()
+        {
+            const string EnvName = "TESSDATA_PREFIX";
+
+            string result = Environment.GetEnvironmentVariable(EnvName);
+            if (string.IsNullOrEmpty(result))
+            {
+                string exe = Assembly.GetExecutingAssembly().Location;
+                string folder = Path.GetDirectoryName(exe);
+                result = Path.Combine(folder, "tessdata");
             }
             return result;
         }

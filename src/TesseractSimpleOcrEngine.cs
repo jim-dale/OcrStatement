@@ -2,16 +2,16 @@
 namespace OcrStatement
 {
     using System;
-    using Tesseract;
     using System.Drawing;
+    using Tesseract;
 
     public class TesseractSimpleOcrEngine : ISimpleOcrEngine
     {
         private TesseractEngine _engine = null;
 
-        public void Initialise(string allowedCharacters)
+        public void Initialise(string tessdataPath, string allowedCharacters)
         {
-            _engine = new TesseractEngine(@"./tessdata", "eng", EngineMode.Default);
+            _engine = new TesseractEngine(tessdataPath, "eng", EngineMode.Default);
 
             _engine.SetVariable("load_system_dawg", false);
             _engine.SetVariable("load_freq_dawg", false);

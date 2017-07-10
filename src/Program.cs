@@ -11,6 +11,16 @@ namespace OcrStatement
     {
         static void Main(string[] args)
         {
+#if DEBUG
+            // Handy args for debugging
+            args = new string[]
+            {
+                "-s", @"%SCANDOCS%\Finance\John Lewis\Statements\2016",
+                "-t", @"%SCANDOCS%\Finance\John Lewis\Statements\2016 John Lewis Partnership.csv",
+                "-i", @"%SCANDOCS%\Finance\John Lewis\Statements\TEMP",
+                "-o"
+            };
+#endif
             var cfg = ArgsProcessor.Parse(args);
             if (cfg.ShowHelp)
             {
@@ -103,14 +113,14 @@ namespace OcrStatement
 
             var store = ctx.Container.Resolve<OcrTextStore>(TypedParameter.From(path));
 
-            if (ctx.Config.ForceOcr == false && store.IsCached())
-            {
-                result = store.GetText();
-            }
-            else
+            if (ctx.Config.ForceOcr || store.IsCached() == false)
             {
                 result = ExtractTextFromFile(ctx, path);
                 store.SaveText(result);
+            }
+            else
+            {
+                result = store.GetText();
             }
 
             return result;
@@ -118,11 +128,11 @@ namespace OcrStatement
 
         private static string ExtractTextFromFile(AppContext ctx, string file)
         {
-            string result = null;
+            string result = string.Empty;
 
             string imageFileName = ctx.ImagePreprocessor.GetIntermediateFileName(file);
 
-            if (File.Exists(imageFileName) == false || ctx.Config.ForceImageProcessing)
+            if (ctx.Config.ForceImageProcessing || File.Exists(imageFileName) == false)
             {
                 ctx.ImagePreprocessor.CreateNewImageFrom(file, imageFileName);
             }
@@ -165,10 +175,10 @@ namespace OcrStatement
                 var iEngine = new Lazy<ISimpleOcrEngine>(() =>
                 {
                     var engine = new TesseractSimpleOcrEngine();
-                    engine.Initialise(config.AllowedCharacters);
+                    engine.Initialise(config.TessdataPath, config.AllowedCharacters);
                     return engine;
                 });
-                return builder;
+                return iEngine;
             })
                 .SingleInstance();
             builder.Register((c, p) =>
