@@ -22,12 +22,13 @@ namespace OcrStatement
         {
             Console.WriteLine("OCR bank statements.");
             Console.WriteLine();
+            Console.WriteLine("OcrStatement -s path [-t path] [-i path] [-p patterns] [-c characters] [-f] [-o]");
             Console.WriteLine("  -?        Display this help information.");
-            Console.WriteLine("  -s path            Source.");
-            Console.WriteLine("  -t [path]          Target csv file to write transactions to.");
-            Console.WriteLine("  -i [path]          Intermediate folder for storing scanned text and processed images.");
-            Console.WriteLine("  -p [patterns]      Comma separated list of file search patterns (default *.jpg,*.png).");
-            Console.WriteLine("  -c [characters]    Set of characters allowed in OCR engine.");
+            Console.WriteLine("  -s path            Source file or folder for image(s) to be OCR'rd.");
+            Console.WriteLine("  -t path            Target csv file to write transactions to.");
+            Console.WriteLine("  -i path            Intermediate folder for storing scanned text and processed images.");
+            Console.WriteLine("  -p patterns        Comma separated list of file search patterns (default '*.jpg,*.png').");
+            Console.WriteLine("  -c characters      Set of characters allowed in OCR engine.");
             Console.WriteLine("  -f                 Force image processing even if processed image is available.");
             Console.WriteLine("  -o                 Force OCR even if the OCR'rd text is cached.");
             Console.WriteLine();
